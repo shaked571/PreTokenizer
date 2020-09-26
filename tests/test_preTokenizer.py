@@ -4,8 +4,20 @@ from pre_tokenizer import PreTokenizer
 
 
 class TestPreTokenizer(TestCase):
-    # example_file_text =
     pre_tokenizer = PreTokenizer()
+
+
+    def test_split_a_file(self):
+        # Arrange
+        example_file_text = os.path.abspath(os.path.join(os.path.abspath(__file__), '..', 'test_data', 'simple_text'))
+        out_path = os.path.abspath(os.path.join(os.path.abspath(__file__), '..', 'test_data', 'out'))
+        #Act
+        self.pre_tokenizer.split_file(example_file_text, out_path)
+
+        #Assert
+        self.assertTrue(os.path.isfile(out_path))
+        os.remove(out_path)
+
 
     def test_split_basic_text(self):
         # Arrange
@@ -15,6 +27,17 @@ class TestPreTokenizer(TestCase):
         res = self.pre_tokenizer.pre_tok(text)
         # Assert
         self.assertEqual(expected_res, res, "Failed on simple split.")
+
+    def test_split_basic_text_without_unichar(self):
+        # Arrange
+        text = "כשאבא הלך לעבודה."
+        expected_res = "כש אבא הלך לעבודה."
+        pre_wo_unichar = PreTokenizer(use_unichar=False)
+        # Act
+        res = pre_wo_unichar.pre_tok(text)
+        # Assert
+        self.assertEqual(expected_res, res, "Failed on simple split in uni char mode.")
+
 
     def test_split_2_lines(self):
         # Arrange
@@ -36,18 +59,24 @@ class TestPreTokenizer(TestCase):
         self.assertEquals(res, expected_res)
 
     def test_get_rules(self):
+        # Arrange
         exa_text_path = os.path.abspath(os.path.join(os.path.abspath(__file__), '..', 'test_data', 'rules_sample'))
-
+        # Act
         res = self.pre_tokenizer.get_rules(exa_text_path)
         expected_res = [('כשמה', 'כש^מ^ה'), ('כשכ', 'כש^כ'), ('כשל', 'כש^ל'), ('כשמ', 'כש^מ'), ('שמ', 'ש^מ'),
                         ('ל', 'ל')]
-
+        # Assert
         self.assertEquals(expected_res, res)
 
     def test_get_longest_prefix(self):
+        # Arrange
         w = "כשהאיש"
         expected_res = "כשה"
+
+        # Act
         res = self.pre_tokenizer.get_longest_prefix(w)
+
+        #Asser
         self.assertEquals(expected_res, res)
 
     def test_break_word(self):
@@ -59,6 +88,7 @@ class TestPreTokenizer(TestCase):
         # Act
         res = self.pre_tokenizer.break_word(word, rule)
 
+        # Assert
         self.assertEquals(expected_res, res)
 
     def test_break_word_with_punct(self):
@@ -70,4 +100,5 @@ class TestPreTokenizer(TestCase):
         # Act
         res = self.pre_tokenizer.break_word(word, rule)
 
+        # Assert
         self.assertEquals(expected_res, res)
