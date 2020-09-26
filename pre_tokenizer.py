@@ -1,5 +1,6 @@
 import os
-import re
+import ntpath
+from tqdm import tqdm
 from typing import Optional
 
 
@@ -55,7 +56,7 @@ class PreTokenizer:
 
     def get_longest_prefix(self, t):
         for r in self.rules:
-            if t.startswith(r[0]): #rules are sprted from the longest to shortest
+            if t.startswith(r[0]):  # rules are sorted from the longest to shortest
                 return r[0]
         return None
 
@@ -65,3 +66,23 @@ class PreTokenizer:
         res = " " + " ".join(sub_t) + " " + suffix
         return res
 
+    def split_file(self, path, out_path=None):
+        if out_path is None:
+            name = ntpath.basename(path)
+            name += ".splitted"
+            out_path = os.path.abspath(os.path.join(path, name))
+
+        res = ""
+        with open(path, mode="r", encoding='utf-8') as f:
+            for l in tqdm(f):
+                 res += self.pre_tok(l) + "\n"
+
+        with open(out_path, mode="w", encoding='utf-8') as fo:
+            fo.write(res)
+
+
+
+if __name__ == '__main__':
+        pth = "D:\he_dedup-train.txt"
+        pt = PreTokenizer()
+        pt.split_file(pth)
