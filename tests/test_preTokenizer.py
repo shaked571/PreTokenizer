@@ -6,19 +6,15 @@ from pre_tokenizer import PreTokenizer
 class TestPreTokenizer(TestCase):
     pre_tokenizer = PreTokenizer()
 
-
     def test_split_a_file(self):
         # Arrange
         example_file_text = os.path.abspath(os.path.join(os.path.abspath(__file__), '..', 'test_data', 'simple_text'))
         out_path = os.path.abspath(os.path.join(os.path.abspath(__file__), '..', 'test_data', 'out'))
-        #Act
+        # Act
         self.pre_tokenizer.split_file(example_file_text, out_path)
-
-        #Assert
+        # Assert
         self.assertTrue(os.path.isfile(out_path))
         os.remove(out_path)
-
-
 
     def test_not_split_known_words(self):
         # Arrange
@@ -28,7 +24,6 @@ class TestPreTokenizer(TestCase):
         res = self.pre_tokenizer.pre_tok(text)
         # Assert
         self.assertEqual(expected_res, res, "Failed on simple split.")
-
 
     def test_split_basic_text(self):
         # Arrange
@@ -49,7 +44,6 @@ class TestPreTokenizer(TestCase):
         # Assert
         self.assertEqual(expected_res, res, "Failed on simple split in uni char mode.")
 
-
     def test_split_2_lines(self):
         # Arrange
         text = "אבא הלך לעבודה." + "\n" + "אבא הלך לעבודה."
@@ -58,7 +52,6 @@ class TestPreTokenizer(TestCase):
         res = self.pre_tokenizer.pre_tok(text)
         # Assert
         self.assertEqual(expected_res, res, "Failed on simple split.")
-
 
     def test_line2rule(self):
         # Arrange
@@ -83,11 +76,9 @@ class TestPreTokenizer(TestCase):
         # Arrange
         w = "כשהאיש"
         expected_res = "כשה"
-
         # Act
         res = self.pre_tokenizer.get_longest_prefix(w)
-
-        #Asser
+        # Assert
         self.assertEquals(expected_res, res)
 
     def test_break_word(self):
@@ -95,10 +86,8 @@ class TestPreTokenizer(TestCase):
         word = "כשהאנשים"
         rule = "כש^ה"
         expected_res = " כש ה אנשים"
-
         # Act
         res = self.pre_tokenizer.break_word(word, rule)
-
         # Assert
         self.assertEquals(expected_res, res)
 
@@ -107,9 +96,7 @@ class TestPreTokenizer(TestCase):
         word = "כשהאנשים."
         rule = "כש^ה"
         expected_res = " כש ה אנשים."
-
         # Act
         res = self.pre_tokenizer.break_word(word, rule)
-
         # Assert
         self.assertEquals(expected_res, res)
