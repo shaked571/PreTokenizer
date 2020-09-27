@@ -2,6 +2,7 @@ import os
 import ntpath
 from tqdm import tqdm
 from typing import Optional
+import argparse
 
 
 class PreTokenizer:
@@ -15,7 +16,8 @@ class PreTokenizer:
         self.rule_d = dict(self.rules)
         self.prefix_rules = set([list(r[0])[0] for r in self.rules])
 
-    def line2rule(self, line: str) -> Optional[tuple]:
+    @staticmethod
+    def line2rule(line: str) -> Optional[tuple]:
         if len(line) < 2:
             return
         lsplited = line.split()
@@ -60,7 +62,8 @@ class PreTokenizer:
                 return r[0]
         return None
 
-    def break_word(self, word, rule):
+    @staticmethod
+    def break_word(word, rule):
         sub_t = rule.split('^')
         suffix = word.split("".join(sub_t), 1)[1]
         res = " " + " ".join(sub_t) + " " + suffix
@@ -81,8 +84,29 @@ class PreTokenizer:
             fo.write(res)
 
 
-
 if __name__ == '__main__':
-        pth = "D:\he_dedup-train.txt"
-        pt = PreTokenizer()
-        pt.split_file(pth)
+    def str2bool(v):
+        if isinstance(v, bool):
+            return v
+        if v.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError('Boolean value expected.')
+
+    parser = argparse.ArgumentParser(description='Pre split an Hebrew text.')
+    parser.add_argument('-input', type=str,  help='The path to he input file')
+    parser.add_argument('-output', type=str, default=None,
+                        help='The path to he output file, if not supplied the output file default would be ['
+                             'InputFile].splitted')
+    parser.add_argument('-unichar', type=str2bool, default=True,
+                        help="If False, do not use the one chars { 'מ', 'ה', 'ב', 'ל', 'כ', 'ו', 'ש'} to break the "
+                             "sentence ")
+
+    args = parser.parse_args()
+
+    input_path = args.input
+    output_path = args.output
+    pt = PreTokenizer(args.unichar)
+    pt.split_file(input_path, output_path)
