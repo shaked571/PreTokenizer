@@ -19,6 +19,17 @@ class TestPreTokenizer(TestCase):
         os.remove(out_path)
 
 
+
+    def test_not_split_known_words(self):
+        # Arrange
+        text = "אבא שלי שמח ."
+        expected_res = text
+        # Act
+        res = self.pre_tokenizer.pre_tok(text)
+        # Assert
+        self.assertEqual(expected_res, res, "Failed on simple split.")
+
+
     def test_split_basic_text(self):
         # Arrange
         text = "אבא הלך לעבודה."

@@ -1,15 +1,17 @@
 import os
 import ntpath
 from tqdm import tqdm
-from typing import Optional
+from typing import Optional, Set
 import argparse
 
 
 class PreTokenizer:
+    _NOT_TO_SPlIT: Set[str]
     rule_file = 'bgupreflex_withdef.utf8'
     rule_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'rules', rule_file))
 
     def __init__(self, use_unichar=True):
+        self._NOT_TO_SPlIT = {'של', 'שלכם', 'שלנו', 'שלהם', 'שלך', 'שלי', 'מי', 'מה'}
         self.rules = self.get_rules()
         if not use_unichar:
             self.rules = [r for r in self.rules if len(r[0]) > 1]
@@ -45,9 +47,9 @@ class PreTokenizer:
         res = ''
         txt_split = text.split()
         for t in txt_split:
-            if any([t.startswith(c) for c in self.prefix_rules]):
+            if any([t.startswith(c) for c in self.prefix_rules]) and t not in self._NOT_TO_SPlIT:
                 lp = self.get_longest_prefix(t)
-                if lp is None:
+                if lp is None or len(t) < len(lp) + 2:
                     res += f" {t}"
                     continue
                 rule = self.rule_d[lp]
@@ -78,7 +80,7 @@ class PreTokenizer:
         res = ""
         with open(path, mode="r", encoding='utf-8') as f:
             for l in tqdm(f):
-                 res += self.pre_tok(l) + "\n"
+                res += self.pre_tok(l) + "\n"
 
         with open(out_path, mode="w", encoding='utf-8') as fo:
             fo.write(res)
@@ -95,14 +97,14 @@ if __name__ == '__main__':
         else:
             raise argparse.ArgumentTypeError('Boolean value expected.')
 
+
     parser = argparse.ArgumentParser(description='Pre split an Hebrew text.')
-    parser.add_argument('-input', type=str,  help='The path to he input file')
+    parser.add_argument('-input', type=str, help='The path to he input file')
     parser.add_argument('-output', type=str, default=None,
                         help='The path to he output file, if not supplied the output file default would be ['
                              'InputFile].splitted')
     parser.add_argument('-unichar', type=str2bool, default=True,
-                        help="If False, do not use the one chars { 'מ', 'ה', 'ב', 'ל', 'כ', 'ו', 'ש'} to break the "
-                             "sentence ")
+                        help="If False, do not use the one chars to break the sentence ")
 
     args = parser.parse_args()
 
