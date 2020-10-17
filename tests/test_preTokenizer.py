@@ -91,6 +91,17 @@ class TestPreTokenizer(TestCase):
         # Assert
         self.assertEquals(expected_res, res)
 
+    def test_break_word_with_sign_long(self):
+        # Arrange
+        pre_tokenizer_sign = PreTokenizer(separator='$$')
+        word = "שמשביעים"
+        rule = "ש^מש^ב"
+        expected_res = " ש$$ מש$$ ב$$ יעים"
+        # Act
+        res = pre_tokenizer_sign.break_word(word, rule)
+        # Assert
+        self.assertEquals(expected_res, res)
+
     def test_break_word_with_punct(self):
         # Arrange
         word = "כשהאנשים."

@@ -10,11 +10,12 @@ class PreTokenizer:
     rule_file = 'bgupreflex_withdef.utf8'
     rule_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'rules', rule_file))
 
-    def __init__(self, use_unichar=True):
+    def __init__(self, use_unichar=True, separator=''):
         self._NOT_TO_SPlIT = {'של', 'שלכם', 'שלנו', 'שלהם', 'שלך', 'שלי', 'מי', 'מה'}
         self.rules = self.get_rules()
         if not use_unichar:
             self.rules = [r for r in self.rules if len(r[0]) > 1]
+        self.separator = separator
         self.rule_d = dict(self.rules)
         self.prefix_rules = set([list(r[0])[0] for r in self.rules])
 
@@ -64,11 +65,10 @@ class PreTokenizer:
                 return r[0]
         return None
 
-    @staticmethod
-    def break_word(word, rule):
+    def break_word(self, word, rule):
         sub_t = rule.split('^')
         suffix = word.split("".join(sub_t), 1)[1]
-        res = " " + " ".join(sub_t) + " " + suffix
+        res = " " + f"{self.separator} ".join(sub_t) + f"{self.separator} " + suffix
         return res
 
     def split_file(self, path, out_path=None):
@@ -105,10 +105,14 @@ if __name__ == '__main__':
                              'InputFile].splitted')
     parser.add_argument('-unichar', type=str2bool, default=True,
                         help="If False, do not use the one chars to break the sentence ")
+    parser.add_argument('-separator', type=str, default='',
+                        help="A sign to seperate every char, for example using the flag \n"
+                             "-separator $$\n"
+                             "  will seperate a [to-ken] to to$$ ken. The default is ''")
 
     args = parser.parse_args()
 
     input_path = args.input
     output_path = args.output
-    pt = PreTokenizer(args.unichar)
+    pt = PreTokenizer(args.unichar, args.separator)
     pt.split_file(input_path, output_path)
