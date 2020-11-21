@@ -128,3 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea/
+tests/test_data/with_sign
+tests/test_data/with_sign_w_uni
