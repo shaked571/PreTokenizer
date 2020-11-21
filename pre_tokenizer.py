@@ -104,7 +104,9 @@ if __name__ == '__main__':
                         help='The path to he output file, if not supplied the output file default would be ['
                              'InputFile].splitted')
     parser.add_argument('-unichar', type=str2bool, default=True,
-                        help="If False, do not use the one chars to break the sentence ")
+                        help="If False, do not use the one chars to break the sentence The default is True i.e. "
+                             "to break also unichars as Hey (the 5th letter in the Alef Bet),"
+                             " Bet (the 2th letter in the Alef Bet) etc.")
     parser.add_argument('-separator', type=str, default='',
                         help="A sign to seperate every char, for example using the flag \n"
                              "-separator $$\n"
