@@ -10,7 +10,12 @@ class PreTokenizer:
     rule_file = 'bgupreflex_withdef.utf8'
     rule_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'rules', rule_file))
 
-    def __init__(self, use_unichar=True, separator=''):
+    def __init__(self, use_unichar=True, separator='', improved_mode=True):
+        if improved_mode:
+            self.act = self.pre_tok_improved
+        else:
+            self.act = self.pre_tok_classic
+
         self._NOT_TO_SPlIT = {'של', 'שלכם', 'שלנו', 'שלהם', 'שלך', 'שלי', 'מי', 'מה'}
         self.rules = self.get_rules()
         if not use_unichar:
@@ -44,13 +49,28 @@ class PreTokenizer:
 
         return rules
 
-    def pre_tok(self, text: str) -> str:
+    def pre_tok_improved(self, text: str) -> str:
         res = ''
         txt_split = text.split()
         for t in txt_split:
             if any([t.startswith(c) for c in self.prefix_rules]) and t not in self._NOT_TO_SPlIT:
                 lp = self.get_longest_prefix(t)
                 if lp is None or len(t) < len(lp) + 2:
+                    res += f" {t}"
+                    continue
+                rule = self.rule_d[lp]
+                res += self.break_word(t, rule)
+            else:
+                res += f" {t}"
+        return res[1:]  # remove the first redundant space
+
+    def pre_tok_classic(self, text: str) -> str:
+        res = ''
+        txt_split = text.split()
+        for t in txt_split:
+            if any([t.startswith(c) for c in self.prefix_rules]):
+                lp = self.get_longest_prefix(t)
+                if lp is None:
                     res += f" {t}"
                     continue
                 rule = self.rule_d[lp]
@@ -80,7 +100,7 @@ class PreTokenizer:
         res = ""
         with open(path, mode="r", encoding='utf-8') as f:
             for l in tqdm(f):
-                res += self.pre_tok(l) + "\n"
+                res += self.act(l) + "\n"
 
         with open(out_path, mode="w", encoding='utf-8') as fo:
             fo.write(res)
@@ -107,6 +127,10 @@ if __name__ == '__main__':
                         help="If False, do not use the one chars to break the sentence The default is True i.e. "
                              "to break also unichars as Hey (the 5th letter in the Alef Bet),"
                              " Bet (the 2th letter in the Alef Bet) etc.")
+    parser.add_argument('-improved', type=str2bool, default=True,
+                        help="If True wouldn't split a close set of  common words and run with a condition that "
+                             "the algorithm would  split a word only if the len of the word is bigger or equal to"
+                             " the len of the prefix. By default True, unless run with False ")
     parser.add_argument('-separator', type=str, default='',
                         help="A sign to seperate every char, for example using the flag \n"
                              "-separator $$\n"
@@ -116,5 +140,5 @@ if __name__ == '__main__':
 
     input_path = args.input
     output_path = args.output
-    pt = PreTokenizer(args.unichar, args.separator)
+    pt = PreTokenizer(args.unichar, args.separator, args.improved)
     pt.split_file(input_path, output_path)
