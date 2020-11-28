@@ -20,7 +20,9 @@ class PreTokenizer:
         self.rules = self.get_rules()
         if not use_unichar:
             self.rules = [r for r in self.rules if len(r[0]) > 1]
-        self.separator = separator
+        self.separator = separator.strip('"\'')
+        if separator.isdigit() or separator.isspace() or separator.isalpha():
+            raise ValueError(f"The separator is {separator} - but it can't be a number, space or only letters.")
         self.rule_d = dict(self.rules)
         self.prefix_rules = set([list(r[0])[0] for r in self.rules])
 
@@ -119,8 +121,8 @@ if __name__ == '__main__':
 
 
     parser = argparse.ArgumentParser(description='Pre split an Hebrew text.')
-    parser.add_argument('-input', type=str, help='The path to he input file')
-    parser.add_argument('-output', type=str, default=None,
+    parser.add_argument('input', type=str, help='The path to he input file')
+    parser.add_argument('output', type=str, default=None,
                         help='The path to he output file, if not supplied the output file default would be ['
                              'InputFile].splitted')
     parser.add_argument('-unichar', type=str2bool, default=True,
