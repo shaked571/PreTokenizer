@@ -11,7 +11,12 @@ class PreTokenizer:
     rule_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'rules', rule_file))
 
     def __init__(self, input_f, output_f, use_unichar=True, separator='', improved_mode=True):
+
+        logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s",
+            handlers=[logging.FileHandler("PreTokenizer.log"), logging.StreamHandler()])
+
         self.logger = logging.getLogger("PreTokenizer")
+
         if improved_mode:
             self.act = self.pre_tok_improved
         else:
