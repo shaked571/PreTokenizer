@@ -21,7 +21,7 @@ class TestPreTokenizer(TestCase):
         text = "אבא שלי שמח ."
         expected_res = text
         # Act
-        res = self.pre_tokenizer.pre_tok(text)
+        res = self.pre_tokenizer.act(text)
         # Assert
         self.assertEqual(expected_res, res, "Failed on simple split.")
 
@@ -30,7 +30,7 @@ class TestPreTokenizer(TestCase):
         text = "אבא הלך לעבודה."
         expected_res = "אבא ה לך ל עבודה."
         # Act
-        res = self.pre_tokenizer.pre_tok(text)
+        res = self.pre_tokenizer.act(text)
         # Assert
         self.assertEqual(expected_res, res, "Failed on simple split.")
 
@@ -40,7 +40,7 @@ class TestPreTokenizer(TestCase):
         expected_res = "כש אבא הלך לעבודה."
         pre_wo_unichar = PreTokenizer(use_unichar=False)
         # Act
-        res = pre_wo_unichar.pre_tok(text)
+        res = pre_wo_unichar.act(text)
         # Assert
         self.assertEqual(expected_res, res, "Failed on simple split in uni char mode.")
 
@@ -49,7 +49,7 @@ class TestPreTokenizer(TestCase):
         text = "אבא הלך לעבודה." + "\n" + "אבא הלך לעבודה."
         expected_res = "אבא ה לך ל עבודה." + " " +"אבא ה לך ל עבודה."
         # Act
-        res = self.pre_tokenizer.pre_tok(text)
+        res = self.pre_tokenizer.act(text)
         # Assert
         self.assertEqual(expected_res, res, "Failed on simple split.")
 
@@ -60,7 +60,7 @@ class TestPreTokenizer(TestCase):
         # Act
         res = self.pre_tokenizer.line2rule(line)
         # Assert
-        self.assertEquals(res, expected_res)
+        self.assertEqual(res, expected_res)
 
     def test_get_rules(self):
         # Arrange
@@ -70,7 +70,7 @@ class TestPreTokenizer(TestCase):
         expected_res = [('כשמה', 'כש^מ^ה'), ('כשכ', 'כש^כ'), ('כשל', 'כש^ל'), ('כשמ', 'כש^מ'), ('שמ', 'ש^מ'),
                         ('ל', 'ל')]
         # Assert
-        self.assertEquals(expected_res, res)
+        self.assertEqual(expected_res, res)
 
     def test_get_longest_prefix(self):
         # Arrange
@@ -79,7 +79,7 @@ class TestPreTokenizer(TestCase):
         # Act
         res = self.pre_tokenizer.get_longest_prefix(w)
         # Assert
-        self.assertEquals(expected_res, res)
+        self.assertEqual(expected_res, res)
 
     def test_break_word(self):
         # Arrange
@@ -89,7 +89,7 @@ class TestPreTokenizer(TestCase):
         # Act
         res = self.pre_tokenizer.break_word(word, rule)
         # Assert
-        self.assertEquals(expected_res, res)
+        self.assertEqual(expected_res, res)
 
     def test_break_word_with_sign_long(self):
         # Arrange
@@ -100,7 +100,7 @@ class TestPreTokenizer(TestCase):
         # Act
         res = pre_tokenizer_sign.break_word(word, rule)
         # Assert
-        self.assertEquals(expected_res, res)
+        self.assertEqual(expected_res, res)
 
     def test_break_word_with_punct(self):
         # Arrange
@@ -110,4 +110,4 @@ class TestPreTokenizer(TestCase):
         # Act
         res = self.pre_tokenizer.break_word(word, rule)
         # Assert
-        self.assertEquals(expected_res, res)
+        self.assertEqual(expected_res, res)
