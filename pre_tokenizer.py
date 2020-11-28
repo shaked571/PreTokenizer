@@ -3,14 +3,15 @@ import ntpath
 from tqdm import tqdm
 from typing import Optional, Set
 import argparse
-
+import logging
 
 class PreTokenizer:
     _NOT_TO_SPlIT: Set[str]
     rule_file = 'bgupreflex_withdef.utf8'
     rule_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'rules', rule_file))
 
-    def __init__(self, use_unichar=True, separator='', improved_mode=True):
+    def __init__(self, input_f, output_f, use_unichar=True, separator='', improved_mode=True):
+        self.logger = logging.getLogger("PreTokenizer")
         if improved_mode:
             self.act = self.pre_tok_improved
         else:
@@ -25,6 +26,17 @@ class PreTokenizer:
             raise ValueError(f"The separator is {separator} - but it can't be a number, space or only letters.")
         self.rule_d = dict(self.rules)
         self.prefix_rules = set([list(r[0])[0] for r in self.rules])
+
+        self.logger.info(f"Input file: {input_f}")
+        self.logger.info(f"Output file: {output_f}")
+        if self.separator == "":
+            self.logger.info(f"Not using separator")
+        else:
+            self.logger.info(f"Separator used: {self.separator}")
+        self.logger.info(f"Using unichar for separation: {use_unichar}")
+        self.logger.info(f"Run on improved mode: {improved_mode}")
+
+
 
     @staticmethod
     def line2rule(line: str) -> Optional[tuple]:
@@ -122,7 +134,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Pre split an Hebrew text.')
     parser.add_argument('input', type=str, help='The path to he input file')
-    parser.add_argument('output', type=str, default=None,
+    parser.add_argument('output', type=str,
                         help='The path to he output file, if not supplied the output file default would be ['
                              'InputFile].splitted')
     parser.add_argument('-unichar', type=str2bool, default=True,
@@ -142,5 +154,5 @@ if __name__ == '__main__':
 
     input_path = args.input
     output_path = args.output
-    pt = PreTokenizer(args.unichar, args.separator, args.improved)
+    pt = PreTokenizer(input_path, output_path, args.unichar, args.separator, args.improved)
     pt.split_file(input_path, output_path)
